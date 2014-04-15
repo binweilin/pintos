@@ -1,0 +1,11 @@
+Name: 		Jin Tang
+EID: 		jdt2737
+Section:	53800
+
+Name: 		Daniela Reyes
+EID: 		dir253
+Section:	53799
+
+Name: 		Binwei Lin
+EID: 		bl22343
+Section:	53799
