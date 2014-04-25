@@ -8,12 +8,12 @@
 /* Number of timer interrupts per second. */
 #define TIMER_FREQ 100
 
-static struct list sleep_list;
+static struct list sleep_list;				//sleep list
 
 static struct sleep_elem {
-    struct list_elem elem;   
-    struct semaphore sema;   
-    int64_t     wake_time;   
+    struct list_elem elem;   				//list element
+    struct semaphore sema;   				//semaphore of the thread
+    int64_t     wake_time;   				//wakr up time of the thread
 };
 
 void timer_init (void);

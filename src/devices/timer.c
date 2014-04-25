@@ -106,6 +106,8 @@ timer_sleep (int64_t ticks)
   
   struct sleep_elem sleep;
   sema_init(&(sleep.sema), 0);
+  //get the time of now and set the wakeup time
+  //for the thread
   int64_t start = timer_ticks ();
   sleep.wake_time = start + ticks;
 
@@ -195,6 +197,7 @@ timer_interrupt (struct intr_frame *args UNUSED)
   struct list_elem *e = list_begin (&sleep_list);
     if(!list_empty(&sleep_list))
     {
+      //go through the sleep list and find the thread that should wake up
       while (e != list_end (&sleep_list)) { 
           struct sleep_elem *sleep = list_entry(e, struct sleep_elem, elem);  
           if (sleep->wake_time <= ticks) { 

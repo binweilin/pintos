@@ -209,13 +209,18 @@ lock_acquire (struct lock *lock)
   struct thread *temp = lock->holder;
 
   if(temp != NULL) {
+    //chekc the priority of current thread
+    //and the thread hold the lock
     if(temp->priority < t->priority) {
+      //the thread is donated
       lock->holder->donate = true;
       temp->priority = t->priority;
     }
 
     t->block_lock = lock;
     while(temp->block_lock != NULL) {
+      //find the last thread who is 
+      //not blocked by any other thread
       struct thread *next = temp->block_lock->holder;
       if(next->priority < temp->priority)
         next->priority = temp->priority;
@@ -269,10 +274,13 @@ lock_release (struct lock *lock)
 
   while(lock_elem != list_end(&t->lock_list)) 
   {
+    //find the target lock go through the lock list
     struct lock *holding_lock = list_entry (lock_elem, struct lock, holding_elem);
 
     if (!list_empty(&holding_lock->semaphore.waiters))
     {
+      //go through the waiting threads of 
+      //the lock and set the priority
       struct semaphore *wait_list = &holding_lock->semaphore;
       struct thread *temp = list_entry( list_front(&wait_list->waiters), struct thread, elem);
         
@@ -283,7 +291,6 @@ lock_release (struct lock *lock)
     lock_elem = list_next (lock_elem);
   }
   t->priority = old_priority;
-
 
   lock->holder = NULL;
   sema_up (&lock->semaphore);

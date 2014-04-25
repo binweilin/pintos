@@ -90,18 +90,18 @@ struct thread
     enum thread_status status;          /* Thread state. */
     char name[16];                      /* Name (for debugging purposes). */
     uint8_t *stack;                     /* Saved stack pointer. */
-    int prev_priority;
+    int prev_priority;                  // record previous priority
     int priority;                       /* Priority. */
     struct list_elem allelem;           /* List element for all threads list. */
     int nice;
     
     /* Shared between thread.c and synch.c. */
     struct list_elem elem;              /* List element. */
-    int64_t wake_time;
+    int64_t wake_time;                  //wake up time
 
-    struct lock *block_lock;
-    struct list lock_list;
-    bool donate;
+    struct lock *block_lock;            //lock for thr thread
+    struct list lock_list;              //list of locks hold the thread
+    bool donate;                        //if the thread is donated or not
 
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
