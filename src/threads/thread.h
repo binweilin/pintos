@@ -93,7 +93,7 @@ struct thread
     int prev_priority;                  // record previous priority
     int priority;                       /* Priority. */
     struct list_elem allelem;           /* List element for all threads list. */
-    int nice;
+    
     
     /* Shared between thread.c and synch.c. */
     struct list_elem elem;              /* List element. */
@@ -102,6 +102,10 @@ struct thread
     struct lock *block_lock;            //lock for thr thread
     struct list lock_list;              //list of locks hold the thread
     bool donate;                        //if the thread is donated or not
+
+    /*Advance Scheduler */
+    int nice;
+    int recent_cpu;
 
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
@@ -150,9 +154,17 @@ void thread_foreach (thread_action_func *, void *);
 int thread_get_priority (void);
 void thread_set_priority (int);
 
+/*Also used for Advance Scheduler*/
 int thread_get_nice (void);
 void thread_set_nice (int);
 int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
+
+/*Advance Scheduler*/
+void incr_recent_cpu();
+void calc_load_avg();
+void run_mlfqs(int);
+void calc_priority(struct thread *t);
+void calc_recent_cpu(struct thread *t);
 
 #endif /* threads/thread.h */

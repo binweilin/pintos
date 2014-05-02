@@ -85,6 +85,11 @@ timer_elapsed (int64_t then)
   return timer_ticks () - then;
 }
 
+/*
+  which one should wake first
+  return true if the first sleep_elem
+  wake time is less than the second one
+*/
 bool
 sleep_lower(const struct list_elem *a, 
                  const struct list_elem *b, 
@@ -106,11 +111,12 @@ timer_sleep (int64_t ticks)
   
   struct sleep_elem sleep;
   sema_init(&(sleep.sema), 0);
-  //get the time of now and set the wakeup time
-  //for the thread
+  /*get the current time and set the wakeup time
+  for the thread */
   int64_t start = timer_ticks ();
   sleep.wake_time = start + ticks;
 
+  //insert in the sleep list base on lowest sleep time
   list_insert_ordered (&sleep_list, &(sleep.elem), sleep_lower, NULL);
 
   sema_down(&(sleep.sema));
@@ -194,12 +200,30 @@ timer_interrupt (struct intr_frame *args UNUSED)
   ticks++;
   thread_tick ();
 
+  //advance scheduling 
+  if(thread_mlfqs){
+    //recent_cpu and load_avg need to be updated 
+    if(timer_ticks () % TIMER_FREQ == 0){
+      //update load_avg
+     calc_load_avg();
+     //update recent_cpu for every thread
+     thread_foreach (calc_recent_cpu, NULL);
+      
+    }
+    //priority must be optain every 4 ticks
+     if(timer_ticks() % 4 == 0){
+      //update priority for every thread
+      thread_foreach (calc_priority, NULL);
+    }
+  }
+
   struct list_elem *e = list_begin (&sleep_list);
     if(!list_empty(&sleep_list))
     {
       //go through the sleep list and find the thread that should wake up
       while (e != list_end (&sleep_list)) { 
           struct sleep_elem *sleep = list_entry(e, struct sleep_elem, elem);  
+          //check the if it should wake up base on ticks
           if (sleep->wake_time <= ticks) { 
               e = list_remove(sleep);
               sema_up(&(sleep->sema));
