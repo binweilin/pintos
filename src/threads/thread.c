@@ -96,6 +96,8 @@ thread_init (void)
   list_init (&ready_list);
   list_init (&all_list);
 
+  //initialize load_avg
+  load_avg = 0;
   /* Set up a thread structure for the running thread. */
   initial_thread = running_thread ();
   init_thread (initial_thread, "main", PRI_DEFAULT);
@@ -195,6 +197,11 @@ thread_create (const char *name, int priority,
   init_thread (t, name, priority);
   tid = t->tid = allocate_tid ();
   //thread_set_nice (thread_current()->nice);
+  //initialize nice and recent cpu 
+  if(thread_mlfqs && t != initial_thread){
+    t->nice = thread_current()->nice;
+    t->recent_cpu = thread_current()->recent_cpu;
+  }
 
   /* Prepare thread for first run by initializing its stack.
      Do this atomically so intermediate values for the 'stack' 
@@ -649,9 +656,9 @@ init_thread (struct thread *t, const char *name, int priority)
   }
   else{
     //advance scheduling initialize priority nice and recent cpu
-    calc_priority(t);
     t->nice = 0;
     t->recent_cpu = 0; //initialize recent cpu 
+    calc_priority(t);
   }
     
 
