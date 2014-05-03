@@ -445,6 +445,7 @@ thread_get_load_avg (void)
 {
     enum intr_level old_level;
     old_level = intr_disable ();
+    //multiply load_avg by 100 and convert to nearest int
     int temp = mul_fp_by_int(load_avg, 100);
     temp = conv_fp_to_int_nearest(temp);
     intr_set_level (old_level);
@@ -456,11 +457,10 @@ thread_get_load_avg (void)
 int
 thread_get_recent_cpu (void) 
 {
-  /* Not yet implemented. */
-  //return 0;
   enum intr_level old_level;
   old_level = intr_disable ();
   struct thread *t = thread_current();
+  //multiply load_avg by 100 and convert to nearest int
    int temp = mul_fp_by_int(t->recent_cpu, 100);
    temp = conv_fp_to_int_nearest(temp);
    intr_set_level (old_level);
@@ -656,9 +656,9 @@ init_thread (struct thread *t, const char *name, int priority)
   }
   else{
     //advance scheduling initialize priority nice and recent cpu
-    t->nice = 0;
-    t->recent_cpu = 0; //initialize recent cpu 
-    calc_priority(t);
+    t->nice = 0;        //initialize nice to default value
+    t->recent_cpu = 0; //initialize recent cpu default value
+    calc_priority(t);   //calculates priority for mlfqs
   }
     
 
@@ -785,7 +785,7 @@ allocate_tid (void)
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);
 
 // compares threads priorities and find return
-//true or false depending on which one has the highest priority
+//true if first thread has a highest priority
 bool
 priority_higher(const struct list_elem *a, 
                 const struct list_elem *b, 
